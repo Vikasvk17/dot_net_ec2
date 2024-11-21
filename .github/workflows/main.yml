@@ -1,37 +1,33 @@
-name: .NET Core Build and Test
+name: Build and Publish .NET Core Application
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger on pull request to the main branch
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Can also use windows-latest if you're running on Windows
-
+    runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2  # Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3  # Set up the .NET SDK
-        with:
-          dotnet-version: '6.0'  # Specify the version of .NET (e.g., 6.0)
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'  # Use the version of .NET you need
 
-      - name: Restore dependencies
-        run: dotnet restore  # Restore the project dependencies
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Build the project
-        run: dotnet build --configuration Release  # Build the project
+    - name: Build the project
+      run: dotnet build --configuration Release
 
-      - name: Run tests
-        run: dotnet test  # Run tests (if any)
+    - name: Publish .NET application
+      run: |
+        dotnet publish --configuration Release --output ./publish
+        ls ./publish  # Verify that the files exist in the publish folder
 
-      - name: Publish the project
-        run: dotnet publish --configuration Release --output ./publish  # Publish the application
-
-      - name: Run the application
-        run: dotnet ./publish/YourProjectName.dll  # Replace 'YourProjectName' with your actual project name
+    - name: Run the application
+      run: dotnet ./publish/YourProjectName.dll  # Replace with your actual file name
