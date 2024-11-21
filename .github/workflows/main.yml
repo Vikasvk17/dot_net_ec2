@@ -1,0 +1,37 @@
+name: .NET Core Build and Test
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull request to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Can also use windows-latest if you're running on Windows
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2  # Checkout the repository code
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3  # Set up the .NET SDK
+        with:
+          dotnet-version: '6.0'  # Specify the version of .NET (e.g., 6.0)
+
+      - name: Restore dependencies
+        run: dotnet restore  # Restore the project dependencies
+
+      - name: Build the project
+        run: dotnet build --configuration Release  # Build the project
+
+      - name: Run tests
+        run: dotnet test  # Run tests (if any)
+
+      - name: Publish the project
+        run: dotnet publish --configuration Release --output ./publish  # Publish the application
+
+      - name: Run the application
+        run: dotnet ./publish/YourProjectName.dll  # Replace 'YourProjectName' with your actual project name
