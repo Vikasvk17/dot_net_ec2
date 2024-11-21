@@ -1,43 +1,8 @@
-name: Deploy .NET App to EC2
-
-on:
-  push:
-    branches:
-      - main  # or whatever branch you're using
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
-    - name: Set up .NET Core
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '7.0.x'  # Update as per your .NET version
-
-    - name: Publish .NET Project
-      run: |
-        dotnet restore
-        dotnet publish -c Release -o ./publish
-
-    - name: Transfer Files to EC2
-      uses: appleboy/scp-action@v0.1.1
-      with:
-        host: ${{ secrets.EC2_HOST }}           # EC2 public IP (stored as secret)
-        username: ${{ secrets.EC2_USER }}       # EC2 user (usually 'ubuntu' for Ubuntu EC2)
-        key: ${{ secrets.EC2_PEM_KEY }}         # PEM key stored in GitHub secrets
-        source: ./publish/*                     # Files to transfer
-        target: /var/www/dotnet-app             # Directory on EC2 to copy files
-
-    - name: Restart Application on EC2
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.EC2_HOST }}           # EC2 public IP
-        username: ${{ secrets.EC2_USER }}       # EC2 user
-        key: ${{ secrets.EC2_PEM_KEY }}         # PEM key for SSH
-        script: |
-          cd /var/www/dotnet-app                # Change to your app directory
-          nohup dotnet YourProjectName.dll > log.txt 2>&1 &  # Run .NET app in background
+- name: Transfer Files to EC2
+  uses: appleboy/scp-action@v0.1.1
+  with:
+    host: ${{ secrets.EC2_HOST }}           # EC2 public IP (stored as secret)
+    username: ${{ secrets.EC2_USER }}       # EC2 user (usually 'ubuntu' for Ubuntu EC2)
+    key: ${{ secrets.EC2_PEM_KEY }}         # PEM key stored in GitHub secrets
+    source: ./publish/*                     # Files to transfer
+    target: /var/www/dotnet-app             # Directory on EC2 to copy files
