@@ -1,14 +1,14 @@
-name: Build and Publish .NET Core Application
+name: Build and Run .NET Application
 
 on:
   push:
     branches:
-      - main
+      - main  # Adjust if you're using a different branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -16,18 +16,19 @@ jobs:
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'  # Use the version of .NET you need
+        dotnet-version: '7.0.x'  # Match the .NET version used in the project
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore DotNetDemo/DotNetDemo.csproj
 
     - name: Build the project
-      run: dotnet build --configuration Release
+      run: dotnet build DotNetDemo/DotNetDemo.csproj --configuration Release
 
-    - name: Publish .NET application
-      run: |
-        dotnet publish --configuration Release --output ./publish
-        ls ./publish  # Verify that the files exist in the publish folder
+    - name: Publish the .NET application
+      run: dotnet publish DotNetDemo/DotNetDemo.csproj --configuration Release --output ./publish
 
-    - name: Run the application
-      run: dotnet ./publish/YourProjectName.dll  # Replace with your actual file name
+    - name: List files in the publish folder
+      run: ls -al ./publish
+
+    - name: Run the .NET application
+      run: dotnet ./publish/DotNetDemo.dll
