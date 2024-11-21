@@ -3,7 +3,7 @@ name: Deploy .NET App to EC2
 on:
   push:
     branches:
-      - main  # Change to your branch name if needed
+      - main  # or whatever branch you're using
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x' # Use the .NET version you need
+        dotnet-version: '7.0.x'  # Update as per your .NET version
 
     - name: Publish .NET Project
       run: |
@@ -26,21 +26,18 @@ jobs:
     - name: Transfer Files to EC2
       uses: appleboy/scp-action@v0.1.1
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PEM_KEY }}
-        key_path: "~/.ssh/your-key.pem"
-        source: ./publish/*
-        target: /var/www/dotnet-app  # Change to your target directory on EC2
+        host: ${{ secrets.EC2_HOST }}           # EC2 public IP (stored as secret)
+        username: ${{ secrets.EC2_USER }}       # EC2 user (usually 'ubuntu' for Ubuntu EC2)
+        key: ${{ secrets.EC2_PEM_KEY }}         # PEM key stored in GitHub secrets
+        source: ./publish/*                     # Files to transfer
+        target: /var/www/dotnet-app             # Directory on EC2 to copy files
 
     - name: Restart Application on EC2
       uses: appleboy/ssh-action@v0.1.5
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PEM_KEY }}
-        key_path: "~/.ssh/your-key.pem"
+        host: ${{ secrets.EC2_HOST }}           # EC2 public IP
+        username: ${{ secrets.EC2_USER }}       # EC2 user
+        key: ${{ secrets.EC2_PEM_KEY }}         # PEM key for SSH
         script: |
-          sudo systemctl restart nginx  # Restart Nginx if needed
-          cd /var/www/dotnet-app
-          nohup dotnet YourProjectName.dll > log.txt 2>&1 &
+          cd /var/www/dotnet-app                # Change to your app directory
+          nohup dotnet YourProjectName.dll > log.txt 2>&1 &  # Run .NET app in background
