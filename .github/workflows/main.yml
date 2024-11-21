@@ -1,8 +1,53 @@
-- name: Transfer Files to EC2
-  uses: appleboy/scp-action@v0.1.1
-  with:
-    host: ${{ secrets.EC2_HOST }}           # EC2 public IP (stored as secret)
-    username: ${{ secrets.EC2_USER }}       # EC2 user (usually 'ubuntu' for Ubuntu EC2)
-    key: ${{ secrets.EC2_PEM_KEY }}         # PEM key stored in GitHub secrets
-    source: ./publish/*                     # Files to transfer
-    target: /var/www/dotnet-app             # Directory on EC2 to copy files
+name: Deploy .NET Application to EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger this action on push to the 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Run on an Ubuntu runner
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up .NET SDK
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0'  # Set the .NET version you're using
+
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Build the application
+      - name: Build the application
+        run: dotnet build --configuration Release
+
+      # Publish the application
+      - name: Publish the application
+        run: dotnet publish --configuration Release --output ./publish
+
+      # Transfer files to EC2 using SCP
+      - name: Transfer Files to EC2
+        uses: appleboy/scp-action@v0.1.1
+        with:
+          host: ${{ secrets.EC2_HOST }}  # Use EC2 public IP from GitHub secrets
+          username: ${{ secrets.EC2_USER }}  # EC2 username (usually 'ubuntu')
+          key: ${{ secrets.EC2_PEM_KEY }}  # PEM key stored as secret
+          source: ./publish/*  # Path to the published files
+          target: /home/ubuntu/dotnet-app  # Destination directory on EC2
+
+      # SSH into EC2 and run the application
+      - name: SSH to EC2 and run the application
+        uses: appleboy/ssh-action@v0.1.1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            cd /home/ubuntu/dotnet-app  # Navigate to the directory
+            dotnet HelloWorldApp.dll   # Run the .NET application
