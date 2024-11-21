@@ -37,3 +37,4 @@ jobs:
         target: '/home/ubuntu/dotnet-app'     # Destination path on EC2
         port: 22                              # SSH port (default: 22)
         timeout: "30s"                        # Optional: Connection timeout
+        debug: true                           # Enable debugging
