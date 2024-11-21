@@ -1,37 +1,46 @@
-name: Build and Run .NET Application
+name: Deploy .NET App to EC2
 
 on:
   push:
     branches:
-      - main  # Change if your branch is different
-  pull_request:
-    branches:
-      - main
+      - main  # Change to your branch name if needed
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-    - name: Set up .NET SDK
+    - name: Set up .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'  # Ensure this matches the .NET version you are using
+        dotnet-version: '7.0.x' # Use the .NET version you need
 
-    - name: Restore dependencies
-      run: dotnet restore HelloWorldApp.csproj
+    - name: Publish .NET Project
+      run: |
+        dotnet restore
+        dotnet publish -c Release -o ./publish
 
-    - name: Build the project
-      run: dotnet build HelloWorldApp.csproj --configuration Release
+    - name: Transfer Files to EC2
+      uses: appleboy/scp-action@v0.1.1
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_PEM_KEY }}
+        key_path: "~/.ssh/your-key.pem"
+        source: ./publish/*
+        target: /var/www/dotnet-app  # Change to your target directory on EC2
 
-    - name: Publish the .NET application
-      run: dotnet publish HelloWorldApp.csproj --configuration Release --output ./publish
-
-    - name: List files in the publish folder
-      run: ls -al ./publish
-
-    - name: Run the .NET application
-      run: dotnet ./publish/HelloWorldApp.dll
+    - name: Restart Application on EC2
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_PEM_KEY }}
+        key_path: "~/.ssh/your-key.pem"
+        script: |
+          sudo systemctl restart nginx  # Restart Nginx if needed
+          cd /var/www/dotnet-app
+          nohup dotnet YourProjectName.dll > log.txt 2>&1 &
