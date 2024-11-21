@@ -3,7 +3,10 @@ name: Build and Run .NET Application
 on:
   push:
     branches:
-      - main  # Adjust if you're using a different branch
+      - main  # Change if your branch is different
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -16,19 +19,19 @@ jobs:
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'  # Match the .NET version used in the project
+        dotnet-version: '7.0.x'  # Ensure this matches the .NET version you are using
 
     - name: Restore dependencies
-      run: dotnet restore DotNetDemo/DotNetDemo.csproj
+      run: dotnet restore HelloWorldApp.csproj
 
     - name: Build the project
-      run: dotnet build DotNetDemo/DotNetDemo.csproj --configuration Release
+      run: dotnet build HelloWorldApp.csproj --configuration Release
 
     - name: Publish the .NET application
-      run: dotnet publish DotNetDemo/DotNetDemo.csproj --configuration Release --output ./publish
+      run: dotnet publish HelloWorldApp.csproj --configuration Release --output ./publish
 
     - name: List files in the publish folder
       run: ls -al ./publish
 
     - name: Run the .NET application
-      run: dotnet ./publish/DotNetDemo.dll
+      run: dotnet ./publish/HelloWorldApp.dll
