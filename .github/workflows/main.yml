@@ -30,9 +30,11 @@ jobs:
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
       with:
-        server: ${{ secrets.FTP_SERVER }}          # FTP server address
-        username: ${{ secrets.FTP_USER }}          # FTP username
-        password: ${{ secrets.FTP_PASS }}          # FTP password
-        local-dir: './publish/'                    # Local directory to upload, ensure it ends with a /
-        server-dir: '/htdocs/'         # Destination directory on the FTP server, ensure it ends with a /
-        protocol: 'ftp'                            # Protocol (use 'sftp' for secure FTP)
+        server: ${{ secrets.FTP_SERVER }}          # FTP server address (e.g., '185.27.134.208')
+        username: ${{ secrets.FTP_USER }}          # FTP username (e.g., 'if0_37760275')
+        password: ${{ secrets.FTP_PASS }}          # FTP password (store in GitHub Secrets)
+        local-dir: './publish/'                    # Local directory to upload (ensure it ends with a /)
+        server-dir: '/htdocs/'                     # Destination directory on the FTP server (ensure it ends with a /)
+        protocol: 'ftp'                            # Use 'sftp' if your server supports secure FTP
+        port: 21                                   # Default FTP port (can be omitted if using default FTP port)
+        log-level: 'debug'                         # Optional: to log FTP actions for debugging purposes
