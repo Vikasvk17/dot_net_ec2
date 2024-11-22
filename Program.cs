@@ -1,8 +1,11 @@
-using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+var builder = WebApplication.CreateBuilder(args);  // Creates a WebApplication builder
+var app = builder.Build();  // Builds the app
 
-app.MapGet("/", () => "Hello, World!");  // This sets up a simple route that responds with "Hello, World!"
+// Map a simple GET route that returns "Hello, World!"
+app.MapGet("/", () => "Hello, World!");
 
-app.Run();  // Starts the web server and listens for HTTP requests
+// Run the application
+app.Run();
