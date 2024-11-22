@@ -16,15 +16,15 @@ jobs:
     - name: Set up .NET Core SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0'  # Ensure that this version is correctly set to .NET 6.0
+        dotnet-version: '6.0'  # Make sure it's .NET 6.0 or higher
 
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build the Blazor WebAssembly app
+    - name: Build the .NET app
       run: dotnet build --configuration Release
 
-    - name: Publish the Blazor WebAssembly app
+    - name: Publish the .NET app
       run: dotnet publish -c Release -o ./publish
 
     - name: List files in publish directory
