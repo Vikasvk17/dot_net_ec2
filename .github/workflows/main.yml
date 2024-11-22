@@ -54,35 +54,34 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y dotnet-runtime-6.0
 
-          # Install Nginx (optional if you want reverse proxy)
+          # Install and configure Nginx if not already installed
           sudo apt-get install -y nginx
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
 
-          # Configure Nginx as a reverse proxy
-          sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
+          # Configure Nginx to proxy to the .NET app
+          sudo bash -c 'cat > /etc/nginx/sites-available/HelloWorldApp << "EOF"
           server {
               listen 80;
-              server_name _;
+              server_name ${{ secrets.EC2_HOST }};
 
               location / {
-                  proxy_pass http://localhost:5000;  # Kestrel port
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection keep-alive;
+                  proxy_pass http://localhost:5000;
                   proxy_set_header Host \$host;
-                  proxy_cache_bypass \$http_upgrade;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
               }
           }
           EOF'
 
-          # Restart Nginx to apply changes
+          sudo ln -s /etc/nginx/sites-available/HelloWorldApp /etc/nginx/sites-enabled/
+          sudo nginx -t
           sudo systemctl restart nginx
 
           # Navigate to the app directory
           cd /home/ubuntu/HelloWorldApp
 
-          # Run the app with Kestrel on port 5000
+          # Run the app on port 5000
           nohup dotnet HelloWorldApp.dll --urls http://0.0.0.0:5000 &
-
-          # Optionally, restart a systemd service for your app (if needed)
-          # sudo systemctl restart myapp.service
         EOF
