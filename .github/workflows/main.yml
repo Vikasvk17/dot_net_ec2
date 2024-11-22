@@ -27,14 +27,13 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    - name: Copy to EC2 via SCP
-      uses: appleboy/scp-action@v0.1.1
+    - name: Deploy to FTP Server
+      uses: SamKirkland/FTP-Deploy-Action@4.5.0
       with:
-        host: ${{ secrets.EC2_HOST }}         # EC2 instance IP
-        username: ${{ secrets.EC2_USER }}     # Ubuntu user
-        key: ${{ secrets.EC2_PEM_KEY }}       # PEM key
-        source: './publish/*'                 # Path to your published app
-        target: '/home/ubuntu/dotnet-app'     # Destination path on EC2
-        port: 22                              # SSH port (default: 22)
-        timeout: "30s"                        # Optional: Connection timeout
-        debug: true                           # Enable debugging
+        server: ${{ secrets.FTP_SERVER }}    # FTP server address
+        username: ${{ secrets.FTP_USER }}    # FTP username
+        password: ${{ secrets.FTP_PASS }}    # FTP password
+        local-dir: './publish'               # Local directory to upload
+        server-dir: '/path/on/ftp/server'    # Destination directory on the FTP server
+        protocol: 'ftp'                      # Protocol (use 'sftp' for secure FTP)
+        debug: true                          # Enable debugging for more information
