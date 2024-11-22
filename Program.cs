@@ -1,22 +1,9 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using System;
 
-namespace HelloWorldApp
+class Program
 {
-    public class Program
+    static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder
-                        .UseUrls("http://0.0.0.0:5000") // Listen on all network interfaces on port 5000
-                        .UseStartup<Startup>();
-                });
+        Console.WriteLine("Hello, World!");
     }
 }
