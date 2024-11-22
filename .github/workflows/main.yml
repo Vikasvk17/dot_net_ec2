@@ -30,7 +30,7 @@ jobs:
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
       with:
-        server: ${{ secrets.FTP_SERVER }}          # FTP server address
+        server: ftpupload.net         # FTP server address
         username: ${{ secrets.FTP_USER }}          # FTP username
         password: ${{ secrets.FTP_PASS }}          # FTP password
         local-dir: './publish/'                    # Local directory to upload
