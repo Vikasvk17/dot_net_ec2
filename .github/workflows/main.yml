@@ -27,13 +27,34 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    - name: Deploy to FTP Server
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.0
-      with:
-        server: ftpupload.net         # FTP server address
-        username: ${{ secrets.FTP_USER }}          # FTP username
-        password: ${{ secrets.FTP_PASS }}          # FTP password
-        local-dir: './publish/'                    # Local directory to upload
-        server-dir: '/htdocs/'                     # Destination directory on FTP server
-        protocol: 'ftps'                            # Protocol
-        log-level: 'verbose'                       # Use 'minimal', 'standard', or 'verbose'
+    - name: Deploy to EC2
+      run: |
+        # Set up SSH key for EC2 connection
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+        # Copy the published files to EC2
+        scp -r ./publish/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/HelloWorldApp
+
+        # SSH into EC2 to configure and run the app
+        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          # Install .NET runtime if not already installed
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https
+          wget https://packages.microsoft.com/config/ubuntu/20.04/prod.list
+          sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+          wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y dotnet-runtime-6.0
+
+          # Navigate to the app directory
+          cd /home/ubuntu/HelloWorldApp
+
+          # Run the app
+          nohup dotnet HelloWorldApp.dll &
+
+          # Optionally, restart a systemd service for your app (if needed)
+          # sudo systemctl restart myapp.service
+        EOF
