@@ -41,4 +41,3 @@ jobs:
         server-dir: '/htdocs/'                     # Destination directory on FTP server
         protocol: 'ftps'                            # Protocol (use 'ftps' for secure FTP)
         log-level: 'verbose'                       # Set log level to 'verbose' for detailed output
-\
