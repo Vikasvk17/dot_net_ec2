@@ -10,72 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout the code
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Step 2: Set up .NET Core SDK
     - name: Set up .NET Core SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0'
 
+    # Step 3: Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
 
+    # Step 4: Build the project
     - name: Build
       run: dotnet build --configuration Release
 
+    # Step 5: Publish the project
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    - name: Deploy to EC2
-      run: |
-        # Set up SSH key for EC2 connection
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-        # Copy the published files to EC2
-        scp -r ./publish/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/HelloWorldApp
-
-        # SSH into EC2 to configure Apache and run the app
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          # Install Apache if not installed
-          sudo apt-get update
-          sudo apt-get install -y apache2
-
-          # Enable Apache modules for reverse proxy
-          sudo a2enmod proxy
-          sudo a2enmod proxy_http
-
-          # Configure Apache to reverse proxy to .NET app running on port 5000
-          echo "
-          <VirtualHost *:80>
-              ServerAdmin webmaster@localhost
-              DocumentRoot /var/www/html
-              ProxyPreserveHost On
-              ProxyPass / http://localhost:5000/
-              ProxyPassReverse / http://localhost:5000/
-              ErrorLog ${APACHE_LOG_DIR}/error.log
-              CustomLog ${APACHE_LOG_DIR}/access.log combined
-          </VirtualHost>
-          " | sudo tee /etc/apache2/sites-available/000-default.conf
-
-          # Restart Apache to apply the changes
-          sudo systemctl restart apache2
-
-          # Install .NET runtime if not already installed
-          sudo apt-get install -y apt-transport-https
-          wget https://packages.microsoft.com/config/ubuntu/20.04/prod.list
-          sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
-          wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get install -y dotnet-runtime-6.0
-
-          # Navigate to the app directory
-          cd /home/ubuntu/HelloWorldApp
-
-          # Run the app in the background
-          nohup dotnet HelloWorldApp.dll &
-
-        EOF
+    # Step 6: Deploy to FTP Server
+    - name: Deploy to FTP Server
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.0
+      with:
+        server: ftpupload.net                       # FTP server address
+        username: ${{ secrets.FTP_USER }}           # FTP username from GitHub Secrets
+        password: ${{ secrets.FTP_PASS }}           # FTP password from GitHub Secrets
+        local-dir: './publish/'                     # Local directory to upload
+        server-dir: '/htdocs/'                      # Destination directory on FTP server
+        protocol: 'ftps'                            # Protocol (FTP, FTPS)
+        log-level: 'verbose'                        # Log level: 'minimal', 'standard', or 'verbose'
