@@ -21,19 +21,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
+    - name: Build the Blazor WebAssembly app
       run: dotnet build --configuration Release
 
-    - name: Publish
-      run: dotnet publish --configuration Release --output ./publish
-
-    - name: Install Puppeteer
-      run: |
-        npm install puppeteer
-
-    - name: Convert Pages to Static HTML
-      run: |
-        node ./scripts/convertToStatic.js
+    - name: Publish the Blazor WebAssembly app
+      run: dotnet publish -c Release -o ./publish
 
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
@@ -41,7 +33,7 @@ jobs:
         server: ftpupload.net         # FTP server address
         username: ${{ secrets.FTP_USER }}          # FTP username
         password: ${{ secrets.FTP_PASS }}          # FTP password
-        local-dir: './publish/wwwroot/'           # Path to static files (from Puppeteer output)
+        local-dir: './publish/wwwroot/'           # Path to static files (from .NET publish)
         server-dir: '/htdocs/'                     # Destination directory on FTP server
         protocol: 'ftps'                            # Protocol (use 'ftps' for secure FTP)
         log-level: 'verbose'                       # Set log level to 'verbose' for detailed output
