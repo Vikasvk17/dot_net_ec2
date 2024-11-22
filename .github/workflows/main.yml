@@ -28,12 +28,12 @@ jobs:
       run: dotnet publish --configuration Release --output ./publish
 
     - name: Deploy to FTP Server
-      uses: SamKirkland/FTP-Deploy-Action@v4
+      uses: SamKirkland/FTP-Deploy-Action@v4.5.0
       with:
         server: ${{ secrets.FTP_SERVER }}    # FTP server address
         username: ${{ secrets.FTP_USER }}    # FTP username
         password: ${{ secrets.FTP_PASS }}    # FTP password
         local-dir: './publish'               # Local directory to upload
-        server-dir: '/path/on/ftp/server'    # Destination directory on the FTP server
+        server-dir: '/htdocs/'    # Destination directory on the FTP server
         protocol: 'ftp'                      # Protocol (use 'sftp' for secure FTP)
         debug: true                          # Enable debugging for more information
