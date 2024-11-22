@@ -33,7 +33,7 @@ jobs:
         server: ftpupload.net         # FTP server address
         username: ${{ secrets.FTP_USER }}          # FTP username
         password: ${{ secrets.FTP_PASS }}          # FTP password
-        local-dir: './publish/wwwroot'           # Publish output, typically static files reside in wwwroot for static web apps
+        local-dir: './publish/wwwroot/'           # Publish output, typically static files reside in wwwroot for static web apps
         server-dir: '/htdocs/'                     # Destination directory on FTP server
         protocol: 'ftps'                            # Protocol (use 'ftps' for secure FTP)
         log-level: 'verbose'                       # Set log level to 'verbose' for detailed output
