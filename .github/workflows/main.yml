@@ -10,36 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Set up .NET Core SDK
     - name: Set up .NET Core SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0'
 
-    # Step 3: Restore dependencies
     - name: Restore dependencies
       run: dotnet restore
 
-    # Step 4: Build the project
     - name: Build
       run: dotnet build --configuration Release
 
-    # Step 5: Publish the project
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    # Step 6: Deploy to FTP Server
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
       with:
-        server: ftpupload.net                       # FTP server address
-        username: ${{ secrets.FTP_USER }}           # FTP username from GitHub Secrets
-        password: ${{ secrets.FTP_PASS }}           # FTP password from GitHub Secrets
-        local-dir: './publish/'                     # Local directory to upload
-        server-dir: '/htdocs/'                      # Destination directory on FTP server
-        protocol: 'ftps'                            # Protocol (FTP, FTPS)
-        log-level: 'verbose'                        # Log level: 'minimal', 'standard', or 'verbose'
+        server: ftpupload.net         # FTP server address
+        username: ${{ secrets.FTP_USER }}          # FTP username
+        password: ${{ secrets.FTP_PASS }}          # FTP password
+        local-dir: './publish/wwwroot'           # Publish output, typically static files reside in wwwroot for static web apps
+        server-dir: '/htdocs/'                     # Destination directory on FTP server
+        protocol: 'ftps'                            # Protocol (use 'ftps' for secure FTP)
+        log-level: 'verbose'                       # Set log level to 'verbose' for detailed output
