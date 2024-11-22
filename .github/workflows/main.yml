@@ -27,11 +27,13 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./publish
 
-    # Add a step to list the contents of the 'publish' folder to ensure the static files are being generated
-    - name: List Published Files
+    - name: Install Puppeteer
       run: |
-        echo "Listing contents of ./publish:"
-        ls -R ./publish
+        npm install puppeteer
+
+    - name: Convert Pages to Static HTML
+      run: |
+        node ./scripts/convertToStatic.js
 
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
@@ -39,7 +41,7 @@ jobs:
         server: ftpupload.net         # FTP server address
         username: ${{ secrets.FTP_USER }}          # FTP username
         password: ${{ secrets.FTP_PASS }}          # FTP password
-        local-dir: './publish/wwwroot'           # Publish output, typically static files reside in wwwroot for static web apps
+        local-dir: './publish/wwwroot/'           # Path to static files (from Puppeteer output)
         server-dir: '/htdocs/'                     # Destination directory on FTP server
         protocol: 'ftps'                            # Protocol (use 'ftps' for secure FTP)
         log-level: 'verbose'                       # Set log level to 'verbose' for detailed output
