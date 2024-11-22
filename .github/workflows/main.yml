@@ -30,10 +30,9 @@ jobs:
     - name: Deploy to FTP Server
       uses: SamKirkland/FTP-Deploy-Action@v4.3.0
       with:
-        server: ${{ secrets.FTP_SERVER }}    # FTP server address
-        username: ${{ secrets.FTP_USER }}    # FTP username
-        password: ${{ secrets.FTP_PASS }}    # FTP password
-        local-dir: './publish'               # Local directory to upload
-        server-dir: '/htdocs/'    # Destination directory on the FTP server
-        protocol: 'ftp'                      # Protocol (use 'sftp' for secure FTP)
-        debug: true                          # Enable debugging for more information
+        server: ${{ secrets.FTP_SERVER }}          # FTP server address
+        username: ${{ secrets.FTP_USER }}          # FTP username
+        password: ${{ secrets.FTP_PASS }}          # FTP password
+        local-dir: './publish/'                    # Local directory to upload, ensure it ends with a /
+        server-dir: '/htdocs/'         # Destination directory on the FTP server, ensure it ends with a /
+        protocol: 'ftp'                            # Protocol (use 'sftp' for secure FTP)
